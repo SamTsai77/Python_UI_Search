@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+
+</head>
+
+<body>
+    <div class="container">
+        <nav>
+            <ul>
+                <li><strong>Famous Visit Search</strong></li>
+            </ul>
+        </nav>
+        <div class="row">
+            <input type="text" id="place" />
+        </div>
+        <div class="results">
+            <details role="list" open>
+                <summary aria-haspopup="listbox" role="button" disabled style="display: none;">
+                    Dropdown as a button 1
+                </summary>
+                <ul role="listbox">
+                </ul>
+            </details>
+            <div class="detai-tabel"></div>
+        </div>
+    </div>
+    <script>
+        const search = document.getElementById('place');
+        const results = document.querySelector('ul[role="listbox"]');
+        const details = document.querySelector('details[open]');
+        function changeDetails(e) {
+            const detalTable = document.querySelector('.detai-tabel');
+            const table = document.createElement('table');
+
+            if (detalTable.childElementCount === 0) {
+
+
+                const tr = document.createElement('tr');
+                const headers = ['Place', 'Country', 'Location', 'Type', 'Year Built', 'UNESCO'];
+                headers.forEach(header => {
+                    const th = document.createElement('th');
+                    th.innerText = header;
+                    tr.appendChild(th);
+                });
+                table.appendChild(tr);
+            } else {
+                const dataRow = detalTable.lastChild.remove()
+
+            }
+
+            const card = `
+<article>
+  <header>${e.Place}, ${e.Location}</header>
+    <table>
+        <tr>
+            <th>Type</th>
+            <td>${e.Type}</td>
+        </tr>
+        <tr>
+            <th>Year</th>
+            <td>${e.Year}</td>
+        </tr>
+        <tr>
+            <th>UNESCO</th>
+            <td>${e.UNESCO}</td>
+        </tr>
+    </table>
+</article>
+ `
+            detalTable.innerHTML = card
+        }
+        search.addEventListener('input', function (e) {
+            // on third keystroke, show results
+            const searchInput = e.target.value;
+            if (searchInput.length < 2) {
+                return
+            }
+            fetch('/visits/?place=' + e.target.value)
+                .then(res => res.json())
+                .then(data => {
+                    results.innerHTML = '';
+                    data.forEach(function (item) {
+
+                        const lst = document.createElement('li');
+                        const a = document.createElement('a');
+                        a.innerText = `${item.Place} , ${item.Location}`;
+
+                        a.addEventListener('click', function (e) {
+                            results.innerHTML = '';
+                            changeDetails(item);
+                        }
+                        );
+                        lst.appendChild(a);
+                        results.appendChild(lst);
+                    });
+                });
+        });
+    </script>
+</body>
+
+</html>
